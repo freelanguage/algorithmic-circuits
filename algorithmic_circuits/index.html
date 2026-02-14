@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALGORITHMIC CIRCUITS | Mathematical Art Project</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffff00;
+            --neon-lime: #00ff80;
+            --neon-blue: #0080ff;
+            --neon-pink: #ff0080;
+            --dark-bg: #05050f;
+            --panel-bg: rgba(10, 10, 25, 0.95);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--dark-bg);
+            color: #e0e0ff;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.3;
+        }
+        header { text-align: center; padding: 60px 20px 40px; position: relative; }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--neon-lime);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .intro {
+            max-width: 900px;
+            margin: 0 auto 60px;
+            padding: 35px;
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            position: relative;
+        }
+        .intro::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
+            border-radius: 8px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .intro h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .intro p { line-height: 1.9; font-size: 1.05rem; color: #b0b0d0; }
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+        .artwork {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 0, 255, 0.15);
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .artwork::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
+        }
+        .artwork:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.3);
+        }
+        .artwork:nth-child(even) { direction: rtl; }
+        .artwork:nth-child(even) > * { direction: ltr; }
+        .artwork:nth-child(even)::before {
+            left: auto; right: 0;
+            background: linear-gradient(180deg, var(--neon-magenta), var(--neon-yellow));
+        }
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+        }
+        .image-container img {
+            width: 100%; height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        .artwork:hover .image-container img { transform: scale(1.02); }
+        .expand-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--neon-cyan);
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--neon-cyan);
+        }
+        .image-container:hover .expand-hint { opacity: 1; }
+        .artwork-info h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .number {
+            font-size: 0.9rem;
+            color: var(--dark-bg);
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        .artwork:nth-child(3n) .number { background: linear-gradient(135deg, var(--neon-magenta), var(--neon-pink)); }
+        .artwork:nth-child(3n+2) .number { background: linear-gradient(135deg, var(--neon-yellow), var(--neon-lime)); color: #000; }
+        .title {
+            background: linear-gradient(90deg, #fff, #a0a0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .technique {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            color: var(--neon-lime);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 20px;
+            padding-left: 55px;
+        }
+        .description {
+            font-size: 1rem;
+            line-height: 1.9;
+            color: #a0a0c0;
+            margin-bottom: 25px;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+        .code-block .keyword { color: var(--neon-magenta); }
+        .code-block .function { color: var(--neon-cyan); }
+        .code-block .comment { color: #606080; }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5, 5, 15, 0.98);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 3rem;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 20px var(--neon-cyan);
+        }
+        .lightbox-close:hover {
+            color: var(--neon-magenta);
+            text-shadow: 0 0 30px var(--neon-magenta);
+            transform: scale(1.1);
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            padding: 20px;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 20px var(--neon-cyan);
+            user-select: none;
+        }
+        .lightbox-nav:hover { color: var(--neon-magenta); text-shadow: 0 0 30px var(--neon-magenta); }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+        .lightbox-title {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-yellow);
+            font-size: 1.2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 900px) {
+            .artwork { grid-template-columns: 1fr; direction: ltr !important; }
+            .artwork:nth-child(even) { direction: ltr; }
+            .artwork::before { width: 100%; height: 4px; }
+            .artwork:nth-child(even)::before { left: 0; right: auto; }
+            .lightbox-nav { font-size: 2rem; padding: 10px; }
+            .lightbox-close { top: 10px; right: 20px; font-size: 2rem; }
+        }
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            color: #505070;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.1);
+        }
+        .project-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .meta-item {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+    
+        /* Credits Section */
+        .credits-section {
+            background: linear-gradient(180deg, var(--dark-bg) 0%, rgba(10,10,30,0.8) 100%);
+            padding: 80px 20px;
+            border-top: 1px solid rgba(0, 255, 255, 0.1);
+        }
+        .credits-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .credits-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--neon-cyan);
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 0.2em;
+        }
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        .credit-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .credit-card:hover {
+            border-color: var(--neon-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
+        }
+        .credit-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .credit-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: #606080;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+        }
+        .credit-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            margin-bottom: 5px;
+        }
+        .credit-detail {
+            font-size: 0.85rem;
+            color: #8080a0;
+        }
+        .download-area {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            background: linear-gradient(135deg, rgba(0,255,255,0.05), rgba(255,0,255,0.05));
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        .download-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        .download-info h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-yellow);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        .download-info p {
+            color: #a0a0c0;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .file-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .meta-tag {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        .download-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            color: #000;
+            padding: 20px 35px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+        .download-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.5);
+        }
+        .btn-icon {
+            font-size: 1.5rem;
+        }
+        .generation-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 0, 255, 0.1);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #606080;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        @media (max-width: 900px) {
+            .download-area {
+                flex-direction: column;
+                text-align: center;
+            }
+            .generation-stats {
+                gap: 30px;
+            }
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+
+        .platform-instructions { background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.15); border-radius: 12px; padding: 30px; margin-bottom: 50px; }
+        .instructions-title { font-family: Orbitron, sans-serif; font-size: 1.2rem; color: var(--neon-yellow); text-align: center; margin-bottom: 25px; letter-spacing: 0.15em; }
+        .platform-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .platform-tab { flex: 1; min-width: 100px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #8080a0; padding: 15px 20px; font-family: Orbitron, sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.3s; border-radius: 6px; }
+        .platform-tab:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .platform-tab.active { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); border-color: var(--neon-cyan); color: #000; }
+        .tab-icon { margin-right: 8px; }
+        .platform-content { display: none; }
+        .platform-content.active { display: block; }
+        .distro-selector { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .distro-label { color: #606080; font-size: 0.9rem; }
+        .distro-btn { background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.2); color: var(--neon-cyan); padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .distro-btn:hover, .distro-btn.active { background: var(--neon-cyan); color: #000; }
+        .distro-content { display: none; }
+        .distro-content.active { display: block; }
+        .instructions-code { margin: 0; font-size: 0.8rem; line-height: 1.6; }
+        .troubleshooting { margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,0,255,0.1); }
+        .troubleshooting h4 { color: var(--neon-magenta); font-family: Orbitron, sans-serif; margin-bottom: 15px; font-size: 1rem; }
+        .troubleshoot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .troubleshoot-item { background: rgba(255,0,255,0.05); border: 1px solid rgba(255,0,255,0.15); padding: 15px; border-radius: 6px; font-size: 0.85rem; }
+        .troubleshoot-item strong { color: var(--neon-cyan); display: block; margin-bottom: 5px; }
+        .troubleshoot-item code { font-family: Fira Code, monospace; color: var(--neon-lime); font-size: 0.75rem; }
+</style>
+</head>
+<body>
+    <header>
+        <h1>Algorithmic Circuits</h1>
+        <div class="tagline">10 Mathematical Artworks // Python Generated // 1920×1080</div>
+    </header>
+
+    <div class="intro">
+        <h2>◢ PROJECT STATEMENT ◣</h2>
+        <p>Each artwork in this collection represents a distinct mathematical algorithm transformed into visual circuitry. From Voronoi partitions to reaction-diffusion patterns, these pieces explore the aesthetic potential of computational geometry. Every trace, node, and glow is mathematically determined—no hand-placed elements, pure code-generated artistry. The algorithms don't merely create; they <em>are</em> the artwork.</p>
+    </div>
+
+    <div class="gallery">
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/01_voronoi_synthesis.png', 'Voronoi Synthesis')">
+                <img src="images/01_voronoi_synthesis.png" alt="Voronoi Synthesis" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 01</span><span class="title">Voronoi Synthesis</span></h3>
+                <div class="technique">Voronoi Diagrams + Random Sampling</div>
+                <p class="description">Voronoi diagrams partition space into regions based on distance to seed points. Here, 80 random seed points generate cellular circuit regions, with ridge edges transformed into glowing traces. The dual graph creates natural-looking circuit pathways that mimic organic neural networks while maintaining geometric precision.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">vor = Voronoi(points)<br>for ridge in vor.ridge_vertices:<br>&nbsp;&nbsp;&nbsp;&nbsp;draw_glowing_line(p1, p2, color)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/02_lsystem_traces.png', 'L-System Traces')">
+                <img src="images/02_lsystem_traces.png" alt="L-System Traces" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 02</span><span class="title">L-System Traces</span></h3>
+                <div class="technique">Lindenmayer Systems + Recursion</div>
+                <p class="description">L-Systems use string rewriting to model biological growth. Starting with axiom 'F+F+F+F' and rewrite rule F→'F+F-F-FF+F+F-F', we generate fractal instructions. Each character becomes a drawing command: F draws forward, ± turns 90°. The result: self-similar circuit traces that repeat at multiple scales.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">axiom = 'F+F+F+F'<br>rules = {'F': 'F+F-F-FF+F+F-F'}<br>result = rewrite(axiom, 4)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/03_perlin_flow.png', 'Perlin Flow')">
+                <img src="images/03_perlin_flow.png" alt="Perlin Flow" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 03</span><span class="title">Perlin Flow</span></h3>
+                <div class="technique">Perlin Noise + Flow Fields</div>
+                <p class="description">Perlin noise generates smooth, continuous randomness. At each grid point, noise values determine trace angles, creating flowing organic circuits that follow the 'wind' of mathematical turbulence. The 4-octave frequency composition ensures natural-looking variation from smooth curves to turbulent eddies.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">angle = perlin2d(x*scale, y*scale) * 2π<br>end_x = x + length * cos(angle)<br>color = select_by_noise(n)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/04_cellular_matrix.png', 'Cellular Matrix')">
+                <img src="images/04_cellular_matrix.png" alt="Cellular Matrix" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 04</span><span class="title">Cellular Matrix</span></h3>
+                <div class="technique">Cellular Automata (Conway's Rules)</div>
+                <p class="description">Conway's Game of Life simulates emergent behavior from simple rules: cells survive with 2-3 neighbors, birth occurs at exactly 3. Running for 15 generations from random noise creates organic growth patterns. The binary grid becomes circuit traces—living, breathing digital organisms frozen in neon.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">neighbors = sum(grid[y-1:y+2, x-1:x+2])<br>if alive and neighbors in [2,3]: survive<br>elif dead and neighbors == 3: birth</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/05_mandelbrot_core.png', 'Mandelbrot Core')">
+                <img src="images/05_mandelbrot_core.png" alt="Mandelbrot Core" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 05</span><span class="title">Mandelbrot Core</span></h3>
+                <div class="technique">Mandelbrot Set + Radial Networks</div>
+                <p class="description">The Mandelbrot set z=z²+c reveals infinite complexity through iteration. Each pixel's escape count determines color, mapping the famous fractal boundary. Overlaid: radial traces connecting to a central hub, creating a circuit interpretation of the 'main cardioid'—the heart of the Mandelbrot universe.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">z = 0<br>for n in range(max_iter):<br>&nbsp;&nbsp;&nbsp;&nbsp;if abs(z) > 2: return n<br>&nbsp;&nbsp;&nbsp;&nbsp;z = z*z + complex(x,y)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/06_delaunay_network.png', 'Delaunay Network')">
+                <img src="images/06_delaunay_network.png" alt="Delaunay Network" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 06</span><span class="title">Delaunay Network</span></h3>
+                <div class="technique">Delaunay Triangulation + Mesh Networks</div>
+                <p class="description">Delaunay triangulation creates optimal meshes where no point lies inside any triangle's circumcircle. Combined with structured grid points, it generates balanced circuit networks. Each triangle edge becomes a trace; vertices become glowing nodes. The dual of Voronoi, it represents connection and communication infrastructure.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">tri = Delaunay(points)<br>for simplex in tri.simplices:<br>&nbsp;&nbsp;&nbsp;&nbsp;draw_triangle_edges(simplex)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/07_reaction_diffusion.png', 'Reaction Diffusion')">
+                <img src="images/07_reaction_diffusion.png" alt="Reaction Diffusion" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 07</span><span class="title">Reaction Diffusion</span></h3>
+                <div class="technique">Gray-Scott Model + Pattern Formation</div>
+                <p class="description">The Gray-Scott reaction-diffusion simulates chemical reactions: two substances interact while diffusing. Parameters f=0.035, k=0.06 create 'coral' patterns. After 50 timesteps, the concentration field maps to circuit density—regions of high chemical activity become dense circuit clusters, mimicking organic pattern formation.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">Lu = gaussian_filter(u) - u<br>uv2 = u * v * v<br>u += (Du*Lu - uv2 + f*(1-u)) * dt</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/08_koch_crystals.png', 'Koch Crystals')">
+                <img src="images/08_koch_crystals.png" alt="Koch Crystals" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 08</span><span class="title">Koch Crystals</span></h3>
+                <div class="technique">Koch Snowflake Fractal + Recursion</div>
+                <p class="description">The Koch curve replaces line middle-thirds with equilateral triangles. Recursive depth-3 iteration transforms simple lines into complex crystalline structures. Five snowflakes in different sizes and colors create a circuit crystal garden—mathematical ice formations in neon light.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">def koch_line(p1, p2, depth):<br>&nbsp;&nbsp;&nbsp;&nbsp;if depth == 0: draw_line(p1, p2)<br>&nbsp;&nbsp;&nbsp;&nbsp;else: subdivide_and_recurse()</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/09_flowfield_traces.png', 'Flowfield Traces')">
+                <img src="images/09_flowfield_traces.png" alt="Flowfield Traces" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 09</span><span class="title">Flowfield Traces</span></h3>
+                <div class="technique">Particle Systems + Noise Fields</div>
+                <p class="description">200 particles flow through a Perlin noise vector field, leaving circuit traces. Each particle's velocity follows the local noise gradient, creating smooth, organic paths that intersect and weave. Randomized segment skipping adds variation—some traces are highways, others are back alleys.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">for particle in range(200):<br>&nbsp;&nbsp;&nbsp;&nbsp;angle = perlin2d(x, y) * 4π<br>&nbsp;&nbsp;&nbsp;&nbsp;x += 3 * cos(angle)</span>
+                </div>
+            </div>
+        </div>
+        <div class="artwork">
+            <div class="image-container" onclick="openLightbox('images/10_sierpinski_mesh.png', 'Sierpinski Mesh')">
+                <img src="images/10_sierpinski_mesh.png" alt="Sierpinski Mesh" loading="lazy">
+                <div class="expand-hint">Click to Expand</div>
+            </div>
+            <div class="artwork-info">
+                <h3><span class="number">◈ 10</span><span class="title">Sierpinski Mesh</span></h3>
+                <div class="technique">Sierpinski Triangle + Recursive Subdivision</div>
+                <p class="description">The Sierpinski gasket: recursively removing triangle centers creates a fractal with zero area but infinite edge. Three depth-5 triangles form a circuit trinity—interconnected processing centers. The recursive voids become negative space, the edges become signal pathways—a mathematical monument to distributed computing.</p>
+                <div class="code-block">
+                    <span class="comment"># Algorithm Core</span><br>
+                    <span class="function">def draw_triangle(p1, p2, p3, depth):<br>&nbsp;&nbsp;&nbsp;&nbsp;if depth == 0: draw_edges()<br>&nbsp;&nbsp;&nbsp;&nbsp;else: recurse_three_subtriangles()</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+        <span class="lightbox-nav lightbox-prev" onclick="changeImage(-1)">&lt;</span>
+        <img id="lightbox-img" src="" alt="">
+        <div class="lightbox-title" id="lightbox-title"></div>
+        <span class="lightbox-nav lightbox-next" onclick="changeImage(1)">&gt;</span>
+    </div>
+
+    
+    <!-- Credits & Tech Stack -->
+    <section class="credits-section">
+        <div class="credits-container">
+            <h2 class="credits-title">◢ CREATION STACK ◣</h2>
+
+            <div class="credits-grid">
+                <div class="credit-card">
+                    <div class="credit-icon">🤖</div>
+                    <div class="credit-label">AI System</div>
+                    <div class="credit-value">Agent Zero</div>
+                    <div class="credit-detail">Autonomous AI Agent</div>
+                </div>
+
+                <div class="credit-card">
+                    <div class="credit-icon">🧠</div>
+                    <div class="credit-label">Language Model</div>
+                    <div class="credit-value">Kimi K2.5</div>
+                    <div class="credit-detail">MoE Architecture</div>
+                </div>
+
+                <div class="credit-card">
+                    <div class="credit-icon">🐍</div>
+                    <div class="credit-label">Language</div>
+                    <div class="credit-value">Python 3.x</div>
+                    <div class="credit-detail">Core Generation</div>
+                </div>
+
+                <div class="credit-card">
+                    <div class="credit-icon">📐</div>
+                    <div class="credit-label">Math & Geometry</div>
+                    <div class="credit-value">NumPy + SciPy</div>
+                    <div class="credit-detail">Voronoi, Delaunay, Filters</div>
+                </div>
+
+                <div class="credit-card">
+                    <div class="credit-icon">🎨</div>
+                    <div class="credit-label">Image Processing</div>
+                    <div class="credit-value">Pillow (PIL)</div>
+                    <div class="credit-detail">Rendering & Effects</div>
+                </div>
+
+                <div class="credit-card">
+                    <div class="credit-icon">🌐</div>
+                    <div class="credit-label">Gallery</div>
+                    <div class="credit-value">HTML5 + CSS3 + JS</div>
+                    <div class="credit-detail">Vanilla, No Frameworks</div>
+                </div>
+            </div>
+
+            <div class="download-area">
+                <div class="download-info">
+                    <h3>Download the Generator</h3>
+                    <p>Get the complete Python source code used to create these artworks. Includes all 10 algorithms, Perlin noise implementation, and rendering engine.</p>
+                    <div class="file-meta">
+                        <span class="meta-tag">📄 generate_circuits.py</span>
+                        <span class="meta-tag">⚡ 21KB</span>
+                        <span class="meta-tag">🔓 MIT License</span>
+                    </div>
+                </div>
+                <a href="generate_circuits.py" download class="download-button">
+                    <span class="btn-icon">↓</span>
+                    <span class="btn-text">Download .py</span>
+                </a>
+            </div>
+
+                        <!-- Platform Instructions -->
+            <div class="platform-instructions">
+                <h3 class="instructions-title">◢ GETTING STARTED ◣</h3>
+                
+                <div class="platform-tabs">
+                    <button class="platform-tab active" onclick="showPlatform('linux')">
+                        <span class="tab-icon">🐧</span> Linux
+                    </button>
+                    <button class="platform-tab" onclick="showPlatform('macos')">
+                        <span class="tab-icon">🍎</span> macOS
+                    </button>
+                    <button class="platform-tab" onclick="showPlatform('windows')">
+                        <span class="tab-icon">🪟</span> Windows
+                    </button>
+                </div>
+                
+                <div class="platform-content active" id="platform-linux">
+                    <div class="distro-selector">
+                        <span class="distro-label">Distro:</span>
+                        <button class="distro-btn active" onclick="showDistro('ubuntu')">Ubuntu/Debian/Kali</button>
+                        <button class="distro-btn" onclick="showDistro('fedora')">Fedora/RHEL</button>
+                    </div>
+                    <div class="distro-content active" id="distro-ubuntu">
+                        <div class="code-block instructions-code">
+                            <span class="comment"># 1. Install Python</span><br>
+                            sudo apt update<br>
+                            sudo apt install python3 python3-pip<br><br>
+                            <span class="comment"># 2. Install libraries</span><br>
+                            pip3 install numpy pillow scipy<br><br>
+                            <span class="comment"># 3. Run generator</span><br>
+                            cd algorithmic_circuits<br>
+                            python3 generate_circuits.py<br><br>
+                            <span class="comment"># Output: images/ folder</span>
+                        </div>
+                    </div>
+                    <div class="distro-content" id="distro-fedora">
+                        <div class="code-block instructions-code">
+                            <span class="comment"># 1. Install Python</span><br>
+                            sudo dnf install python3 python3-pip<br><br>
+                            <span class="comment"># 2. Install libraries</span><br>
+                            pip3 install numpy pillow scipy<br><br>
+                            <span class="comment"># 3. Run generator</span><br>
+                            cd algorithmic_circuits<br>
+                            python3 generate_circuits.py
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="platform-content" id="platform-macos">
+                    <div class="code-block instructions-code">
+                        <span class="comment"># 1. Install Homebrew</span><br>
+                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"<br><br>
+                        <span class="comment"># 2. Install Python</span><br>
+                        brew install python<br><br>
+                        <span class="comment"># 3. Install libraries</span><br>
+                        pip3 install numpy pillow scipy<br><br>
+                        <span class="comment"># 4. Run</span><br>
+                        cd algorithmic_circuits<br>
+                        python3 generate_circuits.py
+                    </div>
+                </div>
+                
+                <div class="platform-content" id="platform-windows">
+                    <div class="code-block instructions-code">
+                        <span class="comment"># 1. Install Python from python.org</span><br>
+                        <span class="comment"># Check "Add Python to PATH" during install</span><br><br>
+                        <span class="comment"># 2. Open Command Prompt (Win+R, type "cmd")</span><br><br>
+                        <span class="comment"># 3. Install libraries</span><br>
+                        python -m pip install numpy pillow scipy<br><br>
+                        <span class="comment"># 4. Navigate and run</span><br>
+                        cd algorithmic_circuits<br>
+                        python generate_circuits.py<br><br>
+                        <span class="comment"># OR if multiple Python versions:</span><br>
+                        py -3 generate_circuits.py
+                    </div>
+                </div>
+                
+                <div class="troubleshooting">
+                    <h4>🔧 Troubleshooting</h4>
+                    <div class="troubleshoot-grid">
+                        <div class="troubleshoot-item">
+                            <strong>ModuleNotFoundError</strong><br>
+                            <code>pip install numpy pillow scipy</code>
+                        </div>
+                        <div class="troubleshoot-item">
+                            <strong>Permission Denied</strong><br>
+                            <code>pip3 install --user numpy pillow scipy</code>
+                        </div>
+                        <div class="troubleshoot-item">
+                            <strong>Images Black/Corrupted</strong><br>
+                            <code>pip install scipy --upgrade</code>
+                        </div>
+                        <div class="troubleshoot-item">
+                            <strong>Slow Generation</strong><br>
+                            Close other apps. CPU-intensive.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generation-stats">
+                <div class="stat-item">
+                    <span class="stat-number">10</span>
+                    <span class="stat-label">Algorithms</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">1920×1080</span>
+                    <span class="stat-label">Resolution</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Code Generated</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Manual Edits</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<footer>
+        <div class="project-meta">
+            <span class="meta-item">10 Artworks</span>
+            <span class="meta-item">1920×1080 HD</span>
+            <span class="meta-item">Python Generated</span>
+            <span class="meta-item">Pure Mathematics</span>
+        </div>
+        <p>◢ ALGORITHMIC CIRCUITS ◣ | A Self-Contained Mathematical Art Project</p>
+        <p style="margin-top: 10px; font-size: 0.75rem; opacity: 0.7;">Agent Zero // 2026</p>
+    </footer>
+
+    <script>
+        const images = [
+            {src: 'images/01_voronoi_synthesis.png', title: 'Voronoi Synthesis'},
+            {src: 'images/02_lsystem_traces.png', title: 'L-System Traces'},
+            {src: 'images/03_perlin_flow.png', title: 'Perlin Flow'},
+            {src: 'images/04_cellular_matrix.png', title: 'Cellular Matrix'},
+            {src: 'images/05_mandelbrot_core.png', title: 'Mandelbrot Core'},
+            {src: 'images/06_delaunay_network.png', title: 'Delaunay Network'},
+            {src: 'images/07_reaction_diffusion.png', title: 'Reaction Diffusion'},
+            {src: 'images/08_koch_crystals.png', title: 'Koch Crystals'},
+            {src: 'images/09_flowfield_traces.png', title: 'Flowfield Traces'},
+            {src: 'images/10_sierpinski_mesh.png', title: 'Sierpinski Mesh'}
+        ];
+        let currentIndex = 0;
+
+        function openLightbox(src, title) {
+            currentIndex = images.findIndex(img => img.src === src);
+            updateLightbox();
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close')) {
+                document.getElementById('lightbox').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function changeImage(dir) {
+            currentIndex = (currentIndex + dir + images.length) % images.length;
+            updateLightbox();
+        }
+
+        function updateLightbox() {
+            document.getElementById('lightbox-img').src = images[currentIndex].src;
+            document.getElementById('lightbox-title').textContent = 
+                (currentIndex + 1) + ' / 10 — ' + images[currentIndex].title;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('lightbox').classList.contains('active')) {
+                if (e.key === 'Escape') closeLightbox({target: {id: 'lightbox'}});
+                if (e.key === 'ArrowLeft') changeImage(-1);
+                if (e.key === 'ArrowRight') changeImage(1);
+            }
+        });
+    
+
+function showPlatform(platform) {
+    document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.platform-content').forEach(c => c.classList.remove('active'));
+    event.target.closest('.platform-tab').classList.add('active');
+    document.getElementById('platform-' + platform).classList.add('active');
+}
+function showDistro(distro) {
+    document.querySelectorAll('.distro-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.distro-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('distro-' + distro).classList.add('active');
+}
+</script>
+</body>
+</html>
